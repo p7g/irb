@@ -1,9 +1,11 @@
 const Sentry = require('@sentry/node');
 const emitter = require('log/writer-utils/emitter');
 
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-});
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+  });
+}
 
 const WARNING_INDEX = 3;
 
