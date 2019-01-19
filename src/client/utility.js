@@ -1,7 +1,6 @@
-// comma operator, but in a function
-// eslint-disable-next-line import/prefer-default-export
 import { Errors, ErrorMessages } from '../common/errors';
 
+// comma operator, but in a function
 export const comma = (...exprs) => exprs.pop();
 
 export function validateResponse(res) {
