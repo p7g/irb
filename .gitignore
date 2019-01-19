@@ -1,0 +1,10 @@
+data
+.idea
+.cache
+.vscode
+.DS_Store
+
+.env
+node_modules
+public/*.js
+public/*.map
