@@ -38,7 +38,7 @@ router.get('/discord/callback', async (ctx) => {
     if (!dbUser || !dbUser._id) { // eslint-disable-line no-underscore-dangle
       await db.addUser(user);
     } else {
-      await db.updateUser(user.id, user);
+      await db.updateUser(user.id, Object.assign(dbUser, user));
     }
 
     ctx.session.userId = user.id;
