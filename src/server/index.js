@@ -11,6 +11,7 @@ const serve = require('koa-static');
 const session = require('koa-session');
 
 const log = require('log').get('server');
+const Sentry = require('@sentry/node');
 
 const api = require('./api');
 
@@ -22,6 +23,13 @@ app.keys = [process.env.CLIENT_SECRET];
 router.use('/api', body(), api.routes());
 router.all('*', async (ctx) => {
   await send(ctx, 'public/index.html');
+});
+
+app.on('error', (err, ctx) => {
+  Sentry.captureEvent({
+    exception: err,
+    contexts: ctx,
+  });
 });
 
 module.exports = (port) => {
