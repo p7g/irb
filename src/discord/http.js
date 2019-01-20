@@ -162,7 +162,7 @@ async function startQueue() {
             reset: newLimits.reset,
           },
         }),
-        await removeFromQueue(_id),
+        removeFromQueue(_id),
       ]);
     }
   }
