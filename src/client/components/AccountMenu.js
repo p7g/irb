@@ -13,14 +13,13 @@ export default ({
       src={`https://cdn.discordapp.com/avatars/${id}/${avatar}.jpg?size=32`}
       alt={`${username}'s avatar`}
     />
-    <p>
-      <large>
-        {username}
-      </large>
-      <small>
-        #
-        {discriminator}
-      </small>
-    </p>
+    <br />
+    <large>
+      {username}
+    </large>
+    <small>
+      #
+      {discriminator}
+    </small>
   </div>
 );
