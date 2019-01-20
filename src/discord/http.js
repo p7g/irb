@@ -86,8 +86,8 @@ async function executeWebhook({ id, token }, body) {
     },
   });
   return {
-    remaining: res.headers['X-RateLimit-Remaining'],
-    reset: res.headers['X-RateLimit-Reset'],
+    remaining: res.headers.get('X-RateLimit-Remaining'),
+    reset: res.headers.get('X-RateLimit-Reset'),
   };
 }
 
@@ -153,8 +153,9 @@ async function startQueue() {
     // if remaining or reset < Date.now()
     //  execute, update limits, and remove
     if (remaining === undefined || remaining > 0 || reset < Date.now()) {
-      log('Webhook %s has remaining messages', webhookId);
+      log('Webhook %s has %d remaining messages', webhookId, remaining);
       const newLimits = await executeWebhook({ id: webhookId, token }, body);
+      log('Got new limits for webhook %s: %o', webhookId, newLimits);
       await Promise.all([
         db.updateWebhook(webhookId, {
           $set: {
