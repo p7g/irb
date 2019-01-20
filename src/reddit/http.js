@@ -62,10 +62,20 @@ async function* refresh() {
  */
 async function isValidSubreddit(subreddit) {
   log('Validating subreddit %s', subreddit);
-  const status = await fetch(`https://reddit.com/r/${subreddit}`)
-    .then(res => res.status);
-  log('Subreddit status: %d', status);
-  return status >= 200 && status < 400;
+  try {
+    const res = await fetch(`https://reddit.com/r/${subreddit}.json`);
+    log('Subreddit status: %d', res.status);
+    if (!res.ok) {
+      return false;
+    }
+    const body = await res.json();
+    if (body.kind === 'Listing') {
+      return true;
+    }
+  } catch (e) {
+    return false;
+  }
+  return false;
 }
 
 module.exports = {
