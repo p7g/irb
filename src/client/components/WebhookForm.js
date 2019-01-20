@@ -19,7 +19,7 @@ export default class WebhookForm extends React.Component {
         <legend>Add a webhook</legend>
         {error && <p><em>{error}</em></p>}
         <label htmlFor={`url${this.rand}`}>
-          Webhook URL
+          Webhook URL:
           {' '}
           <input
             type="url"

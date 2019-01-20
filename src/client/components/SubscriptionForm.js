@@ -20,7 +20,7 @@ export default class SubscriptionForm extends React.Component {
         <legend>Add a subscription</legend>
         {error && <p><em>{error}</em></p>}
         <label htmlFor={`sub${this.rand}`}>
-          Add a new subscription
+          Subreddit name:
           {' '}
           <input
             type="text"
@@ -40,6 +40,17 @@ export default class SubscriptionForm extends React.Component {
         >
           Subscribe
         </button>
+        <br />
+        <small>
+          Tip: Add
+          {' '}
+          <code>/new</code>
+          {', '}
+          <code>/hot</code>
+          {', '}
+          <code>/top</code>
+          , etc to change the sort
+        </small>
       </fieldset>
     );
   }
