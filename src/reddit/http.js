@@ -41,10 +41,14 @@ async function* refresh() {
     /* eslint-disable no-await-in-loop, no-restricted-syntax  */
     const subreddits = await db.getSubreddits();
     for (const { _id, latestSeen } of subreddits) {
-      yield await new Promise((resolve, reject) => {
-        /* eslint-enable */
-        limit.reddit(() => get(_id, latestSeen).then(resolve).catch(reject));
-      });
+      try {
+        yield await new Promise((resolve, reject) => {
+          /* eslint-enable */
+          limit.reddit(() => get(_id, latestSeen).then(resolve).catch(reject));
+        });
+      } catch (e) {
+        log.error('Failed to get subreddit %s: %o', _id, e);
+      }
     }
     if (subreddits.length === 0) {
       log('No subreddits found in database');
