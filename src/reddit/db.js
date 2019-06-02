@@ -85,7 +85,6 @@ function getSubreddits() {
   log('Getting all subreddits');
   return new Promise(
     (resolve, reject) => subreddits.find({})
-      .sort({ lastUpdate: 1 })
       .exec((err, result) => (err ? reject(err) : resolve(result))),
   );
 }
@@ -122,18 +121,17 @@ function deleteSubreddit(_id) {
 }
 
 /**
- * Check to see if a subreddit has no webhooks subscribed, and remove
+ * Get the number of subscriptions of a subreddit
  *
  * @param {string} subreddit The name of the subreddit
- * @returns {Promise}
+ * @returns {number}
  */
-async function removeIfNoSubscriptions(subreddit) {
-  log('Removing subreddit %s if no subscriptions', subreddit);
+async function subscriptionCount(subreddit) {
   const subObj = await getSubreddit(subreddit);
-  if (subObj.subscriptions && subObj.subscriptions.length === 0) {
-    return deleteSubreddit(subreddit);
+  if (subObj.subscriptions) {
+    return subObj.subscriptions.length;
   }
-  return Promise.resolve();
+  return 0;
 }
 
 /**
@@ -154,12 +152,13 @@ function updateSubreddit(_id, props) {
 }
 
 module.exports = {
+  deleteSubreddit,
   getSubreddit,
   getSubreddits,
   getWebhookSubscriptions,
   registerSubreddit,
-  removeIfNoSubscriptions,
   subscribe,
+  subscriptionCount,
   unsubscribe,
   unsubscribeFromAll,
   updateSubreddit,

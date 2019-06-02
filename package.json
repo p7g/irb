@@ -32,11 +32,12 @@
     "log-node": "^3.2.1",
     "nedb": "^1.8.0",
     "node-fetch": "^2.3.0",
-    "parcel-bundler": "^1.11.0",
+    "parcel-bundler": "^1.12.3",
     "ramda": "^0.26.1",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
-    "react-router-dom": "^4.3.1"
+    "react-router-dom": "^4.3.1",
+    "reddit-snooper": "^1.0.1"
   },
   "devDependencies": {
     "eslint": "^5.12.0",

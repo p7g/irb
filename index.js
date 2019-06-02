@@ -2,10 +2,16 @@ require('dotenv').config();
 require('log-node')();
 require('./src/log')();
 
+const log = require('log').get('main');
 const serve = require('./src/server');
-const watchReddit = require('./src/reddit');
+const Listener = require('./src/reddit');
 const { startQueue } = require('./src/discord/http');
 
-serve(8080);
-watchReddit();
-startQueue();
+const listener = new Listener();
+
+(async () => {
+  await listener.start();
+  serve(8080, listener);
+  await startQueue();
+})()
+  .catch(e => log(`Error in root function: ${e.toString()}`));

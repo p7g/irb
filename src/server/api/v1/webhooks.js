@@ -105,6 +105,7 @@ router.post('/:id/subscriptions', async (ctx) => {
       return;
     }
     await db.registerSubreddit(subreddit);
+    ctx.redditListener.registerSubreddit(subreddit);
   }
   await db.subscribe(ctx.params.id, subreddit);
   ctx.body = success(await db.getSubreddit(subreddit));
@@ -128,8 +129,12 @@ router.delete('/:id/subscriptions/:subreddit', async (ctx) => {
     return;
   }
 
-  await db.unsubscribe(ctx.params.id, ctx.params.subreddit);
-  await db.removeIfNoSubscriptions(ctx.params.subreddit);
+  const { subreddit } = ctx.params;
+  await db.unsubscribe(ctx.params.id, subreddit);
+  if (await db.subscriptionCount(subreddit) === 0) {
+    await db.deleteSubreddit(subreddit);
+    ctx.redditListener.unregisterSubreddit(subreddit);
+  }
   ctx.status = 200;
   ctx.body = success();
 });

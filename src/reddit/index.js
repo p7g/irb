@@ -1,43 +1,65 @@
 const log = require('log').get('reddit');
+const snooper = require('reddit-snooper');
 
 const db = require('./db');
-const http = require('./http');
 const discord = require('../discord/http');
 
-module.exports = async function start() {
-  log('Started');
-  // eslint-disable-next-line no-restricted-syntax
-  for await (const data of http.refresh()) {
-    try {
-      // TODO: record seen sticky and pinned posts, don't filter out new ones
-      const posts = data.children.reverse().filter(
-        ({ data: { stickied, pinned } }) => !stickied && !pinned,
-      );
-      if (posts.length === 0) {
-        // if there are no posts in the response, there is nothing new
-        continue; // eslint-disable-line no-continue
-      }
+module.exports = class Listener {
+  constructor() {
+    this.handlers = new Map();
+    this.watchers = new Map();
 
-      log('New posts in subreddit %s', data.subreddit);
-      const latest = posts[posts.length - 1];
-      const latestId = `${latest.kind}_${latest.data.id}`;
-
-      const chunks = [];
-      do {
-        // The new posts don't fit on one page
-        chunks.push(posts.splice(0, discord.EMBED_LIMIT));
-      } while (posts.length > discord.EMBED_LIMIT);
-
-      const { subscriptions } = await db.getSubreddit(data.subreddit);
-      await Promise.all(chunks.map(chunk => Promise.all(
-        subscriptions.map(webhook => discord.sendPosts(webhook, chunk)),
-      )));
-
-      // record most recent id as latestSeen in subreddit
-      await db.updateSubreddit(data.subreddit, { latestSeen: latestId });
-    } catch (e) {
-      log.error('Error encountered in reddit listener', e);
-    }
+    this.registerSubreddit = this.registerSubreddit.bind(this);
+    this.unregisterSubreddit = this.unregisterSubreddit.bind(this);
   }
-  log.error('Exited infinite reddit loop');
+
+  static getErrorHandler(name) {
+    return function errorHandler(error) {
+      log(`Error watching subreddit ${name}: ${error.toString()}`);
+    };
+  }
+
+  static getPostHandler(name) {
+    return async function postHandler(post) {
+      log(`New post on subreddit ${name}`);
+      const { subscriptions } = await db.getSubreddit(name);
+
+      subscriptions.forEach((webhook) => {
+        discord.sendPosts(webhook, [post]);
+      });
+    };
+  }
+
+  registerSubreddit(name) {
+    const watcher = snooper.getPostWatcher(name);
+    const handler = Listener.getPostHandler(name);
+
+    watcher
+      .on('post', handler)
+      .on('error', Listener.getErrorHandler(name));
+
+    this.watchers.set(name, watcher);
+    this.handlers.set(name, handler);
+  }
+
+  unregisterSubreddit(name) {
+    const watcher = this.watchers.get(name);
+    const handler = this.handlers.get(name);
+
+    // FIXME: What if one or both is null?
+
+    watcher.off(name, handler);
+  }
+
+  async start() {
+    const subreddits = await db.getSubreddits();
+
+    subreddits.forEach(this.registerSubreddit);
+  }
+
+  stop() {
+    const subreddits = this.watchers.keys();
+
+    subreddits.forEach(this.unregisterSubreddit);
+  }
 };
