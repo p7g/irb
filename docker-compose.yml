@@ -13,7 +13,7 @@ services:
       traefik.enable: true
       traefik.port: 8080
       traefik.backend: irb
-      traefik.frontent.rule: Host:patg.design
+      traefik.frontend.rule: Host:patg.design
 
 networks:
   traefik:
