@@ -1,8 +1,13 @@
 const log = require('log').get('reddit');
-const snooper = require('reddit-snooper');
+const Snooper = require('reddit-snooper');
 
 const db = require('./db');
 const discord = require('../discord/http');
+
+const snooper = new Snooper({
+  automatic_retries: true,
+  api_requests_per_minute: 60,
+});
 
 module.exports = class Listener {
   constructor() {
