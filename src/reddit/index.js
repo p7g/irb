@@ -31,7 +31,7 @@ module.exports = class Listener {
   }
 
   registerSubreddit(name) {
-    const watcher = snooper.getPostWatcher(name);
+    const watcher = snooper.watcher.getPostWatcher(name);
     const handler = Listener.getPostHandler(name);
 
     watcher
