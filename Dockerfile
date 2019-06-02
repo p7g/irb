@@ -2,10 +2,15 @@ FROM node:current-alpine
 
 ENV NODE_ENV=production
 
-COPY . /irb
 WORKDIR /irb
 
+COPY ./package.json ./package.json
+COPY ./package-lock.json ./package-lock.json
+
 RUN npm install
+
+COPY . .
+
 RUN npm run build
 
-CMD npm run start
+ENTRYPOINT ["npm", "run", "start"]
