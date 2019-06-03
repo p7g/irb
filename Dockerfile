@@ -10,6 +10,7 @@ COPY ./package-lock.json ./package-lock.json
 RUN npm install
 
 COPY ./src/client ./src/client
+COPY ./src/common ./src/common
 
 RUN npm run build
 
