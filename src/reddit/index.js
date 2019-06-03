@@ -59,12 +59,12 @@ module.exports = class Listener {
   async start() {
     const subreddits = await db.getSubreddits();
 
-    subreddits.forEach(this.registerSubreddit);
+    subreddits.forEach(({ _id }) => this.registerSubreddit(_id));
   }
 
   stop() {
     const subreddits = this.watchers.keys();
 
-    subreddits.forEach(this.unregisterSubreddit);
+    subreddits.forEach(({ _id }) => this.unregisterSubreddit(_id));
   }
 };
