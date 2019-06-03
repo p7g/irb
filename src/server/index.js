@@ -39,10 +39,13 @@ module.exports = (port, listener) => {
     .use(compress())
     .use(helmet())
     .use(serve(join(__dirname, '../../public')))
-    .use((ctx) => { ctx.redditListener = listener; })
     .use(session(app))
     .use(router.routes())
     .use(router.allowedMethods())
+    .use(async (ctx, next) => {
+      ctx.redditListener = listener;
+      await next();
+    })
     .listen(port);
   log.debug('Listening on port %d', port);
 };
