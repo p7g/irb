@@ -15,11 +15,15 @@ class App extends React.Component {
 
   async componentDidMount() {
     // eslint-disable-next-line no-undef
-    const res = await fetch('/api/v1/users/@me').then(r => r.json());
+    const res = await fetch('/api/v1/users/@me');
 
-    this.setState({
-      user: res.data || null,
-    });
+    let user = null;
+    if (res.ok) {
+      const { data } = await res.json();
+      user = data;
+    }
+
+    this.setState({ user });
   }
 
   render() {
