@@ -9,8 +9,10 @@ COPY ./package-lock.json ./package-lock.json
 
 RUN npm install
 
-COPY . .
+COPY ./src/client ./src/client
 
 RUN npm run build
+
+COPY . .
 
 ENTRYPOINT ["npm", "run", "start"]
