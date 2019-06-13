@@ -1,6 +1,10 @@
 import React from 'react';
 
 import { loginIfNotAuthenticated, getErrorMessage } from '../utility';
+import {
+  assembleSubreddit,
+  normalizeSubreddit,
+} from '../../common/utility';
 
 import Subscription from './Subscription';
 import SubscriptionForm from './SubscriptionForm';
@@ -20,12 +24,21 @@ export default class Webhook extends React.Component {
   }
 
   async subscribe(webhookId, subreddit) {
+    let name;
+    let sort;
+    try {
+      ({ name, sort } = normalizeSubreddit(subreddit));
+    } catch (e) {
+      this.setState({ error: e.message });
+      return;
+    }
+
     this.setState({ error: '' });
     const res = await fetch( // eslint-disable-line no-undef
       `/api/v1/webhooks/${webhookId}/subscriptions`,
       {
         method: 'POST',
-        body: JSON.stringify({ subreddit }),
+        body: JSON.stringify({ subreddit: assembleSubreddit({ name, sort }) }),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -44,9 +57,10 @@ export default class Webhook extends React.Component {
   }
 
   async unsubscribe(webhookId, subreddit) {
+    const encoded = encodeURIComponent(subreddit);
     // eslint-disable-next-line no-undef
     await fetch(
-      `/api/v1/webhooks/${webhookId}/subscriptions/${subreddit}`,
+      `/api/v1/webhooks/${webhookId}/subscriptions/${encoded}`,
       {
         method: 'DELETE',
       },

@@ -7,6 +7,10 @@ const http = require('../../../reddit/http');
 const discordDb = require('../../../discord/db');
 const discordHttp = require('../../../discord/http');
 const { Errors } = require('../../../common/errors');
+const {
+  assembleSubreddit,
+  normalizeSubreddit,
+} = require('../../../common/utility');
 const { error, success } = require('../../result');
 
 const router = new Router();
@@ -94,7 +98,11 @@ router.post('/:id/subscriptions', async (ctx) => {
     ctx.body = error(Errors.BAD_REQUEST);
     return;
   }
-  const { subreddit } = ctx.request.body;
+  let { subreddit } = ctx.request.body;
+
+  const { name, sort } = normalizeSubreddit(subreddit);
+  subreddit = assembleSubreddit({ name, sort });
+
   const subObj = await db.getSubreddit(subreddit);
   // eslint-disable-next-line no-underscore-dangle
   const subredditExists = subObj && subObj._id;
@@ -129,7 +137,10 @@ router.delete('/:id/subscriptions/:subreddit', async (ctx) => {
     return;
   }
 
-  const { subreddit } = ctx.params;
+  let { subreddit } = ctx.params;
+
+  const { name, sort } = normalizeSubreddit(subreddit);
+  subreddit = assembleSubreddit({ name, sort });
   await db.unsubscribe(ctx.params.id, subreddit);
   if (await db.subscriptionCount(subreddit) === 0) {
     await db.deleteSubreddit(subreddit);
