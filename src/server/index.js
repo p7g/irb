@@ -26,6 +26,7 @@ router.all('*', async (ctx) => {
 });
 
 app.on('error', (err, ctx) => {
+  log.error('Caught error: %s: %O', err.toString(), ctx);
   Sentry.captureEvent({
     exception: err,
     contexts: ctx,
